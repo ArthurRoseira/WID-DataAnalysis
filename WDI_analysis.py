@@ -6,44 +6,28 @@ import seaborn as sns
 from connect import WDI_api
 
 
-# Reading DataBase
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-data = pd.read_csv('WDIData.csv')
-#print('Column names:{}'.format(data.columns))
-#print('Rows, Columns:{}'.format(data.shape))
+if __name__ == "__main__":
+    wdi = WDI_api()
+    # wdi.getAllIndicators()
 
-# Selecting and Cleaning Data
-# Unique Countries
-# Shape return tuple of array dimensions
-uniqueCountries = data['Country Code'].unique().shape[0]
-#print('Number of Countries:{}'.format(uniqueCountries))
-# Slicing data into New DataFrames
-# Data Frame 1:  Total Central Government Debt (as % of GDP)
-central_govt_debt = data.loc[data['Indicator Name']
-                             == 'Central government debt, total (% of GDP)']
-military_exp = data.loc[data['Indicator Name']
-                        == 'Military expenditure (% of GDP)']
-desc1 = central_govt_debt['2010'].describe()
-desc2 = military_exp['2010'].describe()
-print(desc1)
-print(desc2)
+    ##### Getting Cross-Sectional Data ####
+    data = pd.read_csv('indicators.csv')
+    ind1Code = data[data.indicatorName ==
+                    'Central government debt, total (% of GDP)'].indicatorCode
+    ind2Code = data[data.indicatorName ==
+                    'Military expenditure (% of GDP)'].indicatorCode
+    (info1, data1) = wdi.getData(
+        'all', ind1Code[6920], date='2010')
+    (info2, data2) = wdi.getData('all', ind2Code[9684], date='2010')
+    d1 = data1[['countryiso3code', 'value']]
+    d2 = data2[['countryiso3code', 'value']]
+    dataPlot = pd.merge(d1, d2, on='countryiso3code')
+    dataPlot.columns = ['Country', 'central_govt_debt', 'military_exp']
 
-# Setting Frame index
-central_govt_debt.index = central_govt_debt['Country Code']
-# Creating two series
-central_govt_debt2010 = central_govt_debt['2010']
-military_exp2010 = military_exp['2010']
-print(military_exp2010.shape)
-# Merging Data Frames
-dataPlot = pd.concat((central_govt_debt2010, military_exp2010), axis=1)
-dataPlot.columns = ['central_govt_debt', 'military_exp']
-MilitaryPlot = dataPlot.loc[(dataPlot.military_exp.isnull() == False)]
-# Taking only countries with both columns info
-#### Plotting Cross-Sectional Data #####
-
-fig, axs = plt.subplots(ncols=2)
-graph1 = sns.histplot(data=MilitaryPlot['military_exp'], ax=axs[0]).set_title(
-    'Military expenditure (% of GDP) of 85 countries in 2010')
-graph2 = sns.kdeplot(data=dataPlot.central_govt_debt, ax=axs[1]).set_title(
-    "Debt of central governments in 2010")
-plt.show()
+    #### Plotting Cross-Sectional Data #####
+    fig, axs = plt.subplots(ncols=2)
+    graph1 = sns.histplot(data=dataPlot['military_exp'], ax=axs[0]).set_title(
+        'Military expenditure (% of GDP) of 85 countries in 2010')
+    graph2 = sns.kdeplot(data=dataPlot.central_govt_debt, ax=axs[1]).set_title(
+        "Debt of central governments in 2010")
+    plt.show()

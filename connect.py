@@ -35,7 +35,7 @@ class WDI_api:
         data['indicatorCode'] = code
         data['indicatorName'] = indicators
         frame = pd.DataFrame(data)
-        return frame
+        frame.to_csv('indicators.csv')
 
     def IndicatorInfo(self, code):
         url = self.Base_url + 'indicators/{}?format=json'.format(code)
