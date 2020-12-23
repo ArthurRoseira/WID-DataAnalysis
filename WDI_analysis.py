@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
 
+
 # Reading DataBase
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 data = pd.read_csv('WDIData.csv')
