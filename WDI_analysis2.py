@@ -46,15 +46,19 @@ def panelData(countries):
     data = pd.read_csv('indicators.csv')
     mExpCode = data[data.indicatorName ==
                     'Military expenditure (% of GDP)'].indicatorCode
-    plt.figure(figsize=(5.5, 5.5))
-    colors = ['b', 'r', 'g', 'y']
+    dataPlot = pd.DataFrame([])
     for i, country in enumerate(countries):
+        df = dataPlot
         (info2, mExpData) = wdi.getData(country, mExpCode[9684])
         dataPlot = mExpData[['date', 'value']]
         dataPlot.set_index('date', inplace=True)
-        print(dataPlot.head())
-        dataPlot.columns = ['Federal Military Expenditure (% GPD)']
-        dataPlot.plot(linestyle='-', marker='*', color=colors[i])
+        dataPlot.dropna(inplace=True)
+        try:
+            dataPlot = pd.merge(dataPlot, df, on='date')
+        except:
+            pass
+    plt.figure(figsize=(5.5, 5.5))
+    dataPlot.plot()
     plt.legend(['USA', 'CHINA', 'UK', 'INDIA'], loc=1)
     plt.title('Miltitary expenditure of 5 countries over 10 years')
     plt.ylabel('Military expenditure (% of GDP)')
