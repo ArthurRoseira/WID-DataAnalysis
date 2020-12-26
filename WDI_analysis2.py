@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
 from connect import WDI_api
 
 
@@ -38,7 +39,16 @@ def usaTimeSeriesAnalysis():
     dataPlot['Debt of Federal Gov'].plot(
         linestyle='-', marker='*', color='r', ax=ax[1])
     plt.show()
-    x = 1
+
+    ##### Trend Model With  Federal Expenditure######
+    dataPlot.reset_index(inplace=True)
+    print(dataPlot.head())
+    fedExpTrend = dataPlot.loc[:, 'date': 'Federal Military Expenditure']
+    trend_model = LinearRegression(normalize=True, fit_intercept=True)
+    trend_model.fit(np.array(fedExpTrend.index).reshape(
+        (-1, 1)), fedExpTrend['Federal Military Expenditure'])
+    print('Trend model coefficient={} and intercept={}'.format(
+        trend_model.coef_[0], trend_model.intercept_))
 
 
 def panelData(countries):
@@ -67,4 +77,5 @@ def panelData(countries):
 
 
 if __name__ == "__main__":
-    panelData(['usa', 'chn', 'gbr', 'ind'])
+    #panelData(['usa', 'chn', 'gbr', 'ind'])
+    usaTimeSeriesAnalysis()
