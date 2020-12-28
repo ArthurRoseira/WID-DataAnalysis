@@ -42,13 +42,28 @@ def usaTimeSeriesAnalysis():
 
     ##### Trend Model With  Federal Expenditure######
     dataPlot.reset_index(inplace=True)
-    print(dataPlot.head())
     fedExpTrend = dataPlot.loc[:, 'date': 'Federal Military Expenditure']
     trend_model = LinearRegression(normalize=True, fit_intercept=True)
     trend_model.fit(np.array(fedExpTrend.index).reshape(
         (-1, 1)), fedExpTrend['Federal Military Expenditure'])
     print('Trend model coefficient={} and intercept={}'.format(
         trend_model.coef_[0], trend_model.intercept_))
+    ### Trend Model Residue and Plot######
+    trendLine = pd.DataFrame(trend_model.predict(
+        np.array(fedExpTrend.index).reshape((-1, 1))))
+    print(trendLine.head())
+    fedExpTrend = pd.concat([fedExpTrend, trendLine])
+    fedExpTrend.plot()
+    plt.show()
+    residuals = np.array(fedExpTrend['Federal Military Expenditure']) - \
+        trend_model.predict(np.array(fedExpTrend.index).reshape((-1, 1)))
+    plt.figure(figsize=(5.5, 5.5))
+    pd.Series(data=residuals, index=fedExpTrend.index).plot(color='b')
+    plt.title('Residuals of trend model for CO2 concentrations')
+    plt.xlabel('Time')
+    plt.ylabel('CO2 concentratition')
+    plt.xticks(rotation=30)
+    plt.show()
 
 
 def panelData(countries):
