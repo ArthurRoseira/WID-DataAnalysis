@@ -48,6 +48,7 @@ def usaTimeSeriesAnalysis():
         (-1, 1)), fedExpTrend['Federal Military Expenditure'])
     print('Trend model coefficient={} and intercept={}'.format(
         trend_model.coef_[0], trend_model.intercept_))
+
     ### Trend Model Residue and Plot######
     trendLine = pd.DataFrame(trend_model.predict(
         np.array(fedExpTrend.index).reshape((-1, 1))))
@@ -91,6 +92,32 @@ def panelData(countries):
     plt.show()
 
 
+def decadeAgregation():
+    wdi = WDI_api()
+    data = pd.read_csv('indicators.csv')
+
+    ##### Getting Time Series Data ###########
+    mExpCode = data[data.indicatorName ==
+                    'Military expenditure (% of GDP)'].indicatorCode
+    (info2, mExpData) = wdi.getData('usa', mExpCode[9684])
+    dataPlot = mExpData[['date', 'value']]
+    dataPlot.columns = ['Year', 'Federal Military Expenditure']
+    dataPlot.dropna(inplace=True)
+    trend_model = LinearRegression(normalize=True, fit_intercept=True)
+    trend_model.fit(np.array(dataPlot.index).reshape(
+        (-1, 1)), dataPlot['Federal Military Expenditure'])
+    print('Trend model coefficient={} and intercept={}'.format(
+        trend_model.coef_[0], trend_model.intercept_))
+    trendLine = pd.DataFrame(trend_model.predict(
+        np.array(dataPlot.index).reshape((-1, 1))))
+    print(trendLine.head())
+    fedExpTrend = pd.concat([dataPlot, trendLine])
+    fedExpTrend.plot()
+    plt.show()
+    # Start Map by Decade
+
+
 if __name__ == "__main__":
     #panelData(['usa', 'chn', 'gbr', 'ind'])
-    usaTimeSeriesAnalysis()
+    # usaTimeSeriesAnalysis()
+    decadeAgregation()
