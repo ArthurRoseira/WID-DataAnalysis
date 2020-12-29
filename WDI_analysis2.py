@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from connect import WDI_api
+import math
 
 
 def usaTimeSeriesAnalysis():
@@ -111,10 +112,25 @@ def decadeAgregation():
     trendLine = pd.DataFrame(trend_model.predict(
         np.array(dataPlot.index).reshape((-1, 1))))
     print(trendLine.head())
-    fedExpTrend = pd.concat([dataPlot, trendLine])
+    fedExpTrend = dataPlot.join(trendLine)
+    print(fedExpTrend.head())
     fedExpTrend.plot()
     plt.show()
     # Start Map by Decade
+    print(fedExpTrend.head())
+    fedExpTrend.dropna(inplace=True)
+    fedExpTrend.columns = ['Year', 'Federal Military Expenditure', 'Trend']
+    fedExpTrend['Decade'] = fedExpTrend['Year'].map(
+        lambda d: str(math.floor((int(d)/10))*10))
+    # Calc of seasonal mean and standart deviation
+    # This create a new Data Frame that contains the decade mean and standart deviation
+    sub_series_data = fedExpTrend.groupby(
+        by=['Decade'])['Trend'].aggregate([np.mean, np.std])
+    sub_series_data.columns = [
+        'Quarterly Mean', 'Quarterly Standard Deviation']
+    print(sub_series_data.head())
+    sub_series_data.plot()
+    plt.show()
 
 
 if __name__ == "__main__":
