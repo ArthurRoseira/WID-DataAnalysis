@@ -131,6 +131,9 @@ def decadeAgregation():
     print(sub_series_data.head())
     sub_series_data.plot()
     plt.show()
+    g = sns.boxplot(data=fedExpTrend,
+                    y='Federal Military Expenditure', x='Decade')
+    plt.show()
 
 
 if __name__ == "__main__":
