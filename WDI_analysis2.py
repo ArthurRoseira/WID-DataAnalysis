@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import MinMaxScaler
 from connect import WDI_api
 import math
 
@@ -136,7 +137,46 @@ def decadeAgregation():
     plt.show()
 
 
+def correlation():
+    wdi = WDI_api()
+    data = pd.read_csv('indicators.csv')
+
+    ##### Getting Time Series Data ###########
+    centGovDebtCode = data[data.indicatorName ==
+                           'Central government debt, total (% of GDP)'].indicatorCode
+    mExpCode = data[data.indicatorName ==
+                    'Military expenditure (% of GDP)'].indicatorCode
+    (info1, govDebtData) = wdi.getData('usa', centGovDebtCode[6920])
+    (info2, mExpData) = wdi.getData('usa', mExpCode[9684])
+    d1 = govDebtData[['date', 'value']]
+    d2 = mExpData[['date', 'value']]
+    dataPlot = pd.merge(d1, d2, on='date')
+    print(dataPlot.head())
+    dataPlot.set_index('date', inplace=True)
+    print(dataPlot.head())
+    dataPlot.columns = ['Federal Military Expenditure', 'Debt of Federal Gov']
+    print(dataPlot.head())
+    dataPlot.dropna(inplace=True)
+    print(dataPlot.head())
+    covariance = pd.Series(dataPlot['Federal Military Expenditure']).cov(
+        pd.Series(dataPlot['Debt of Federal Gov']))
+
+    #### Normalizing Data #######
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(dataPlot)
+    print(scaled_data)
+    scaled_data = pd.DataFrame(scaled_data)
+    scaled_data.columns = [
+        'Federal Military Expenditure', 'Debt of Federal Gov']
+    covariance = pd.Series(scaled_data['Federal Military Expenditure']).cov(
+        pd.Series(scaled_data['Debt of Federal Gov']))
+    print(covariance)
+    scaled_data.plot()
+    plt.show()
+
+
 if __name__ == "__main__":
     #panelData(['usa', 'chn', 'gbr', 'ind'])
     # usaTimeSeriesAnalysis()
-    decadeAgregation()
+    # decadeAgregation()
+    correlation()
