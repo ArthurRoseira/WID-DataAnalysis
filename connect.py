@@ -6,6 +6,14 @@ import pandas as pd
 import numpy as np
 
 
+##################################
+#
+#   WDI_api is a class developed to
+#   Handle requests and get data from
+#   Word Bank api
+#
+##################################
+
 class WDI_api:
 
     def __init__(self):
@@ -82,4 +90,4 @@ if __name__ == "__main__":
     wdi = WDI_api()
     # wdi.getIndicators()
     # wdi.IndicatorInfo('5.1.2_KGZ.TOTA.AID.ADPP.GIZ')
-    wdi.getData('all', 'DPANUSSPB', year='2010')
+    wdi.getData('all', 'DPANUSSPB', date='2010')

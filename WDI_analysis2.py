@@ -9,6 +9,13 @@ from connect import WDI_api
 import math
 
 
+##########################################################
+
+# Some Data Visualization skills  and Statistics fundamentals
+
+##########################################################
+
+
 def usaTimeSeriesAnalysis():
     wdi = WDI_api()
     data = pd.read_csv('indicators.csv')

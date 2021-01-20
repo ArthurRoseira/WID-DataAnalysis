@@ -13,10 +13,16 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 import math
 
 
+##########################################
+#
+# Method used to test correlation between two
+# time series
+#
+##########################################
+
 def timedSeries():
     wdi = WDI_api()
     data = pd.read_csv('indicators.csv')
-
     ##### Getting Time Series Data ###########
     centGovDebtCode = data[data.indicatorName ==
                            'Central government debt, total (% of GDP)'].indicatorCode
@@ -32,6 +38,10 @@ def timedSeries():
         'Federal Military Expenditure', 'Debt of Federal Gov']
     dataPlot.dropna(inplace=True)
     print(dataPlot.head())
+    return dataPlot
+
+
+def correlation(dataPlot):
     # Array for mena values calculation -> Calc the mean values from de array index 0 to actual point in for loop range (x)
     mean_govDept = [np.mean(np.array(dataPlot['Debt of Federal Gov'])[:x])
                     for x in range(len(np.array(dataPlot['Debt of Federal Gov'])))]
@@ -53,5 +63,41 @@ def timedSeries():
     plt.show()
 
 
+def autocorrelation(data):
+    #######################
+    # Testing two methods of
+    # Autocorrelation Visualization
+    #######################
+    print(data.head(10))
+    plt.figure(figsize=(18, 10))
+    ax1 = plt.subplot2grid((3, 1), (0, 0))
+    ax2 = plt.subplot2grid((3, 1), (1, 0))
+    ax3 = plt.subplot2grid((3, 1), (2, 0))
+
+    sns.barplot(y=data.iloc[:, 0].values,
+                x=data.index, ax=ax1)
+    ax1.set_title('USA Federal Military Exp Series')
+    #### First Method #####
+    # Lag 0 means autocorrelation of an observation itself
+    lag = list(range(0, len(data.iloc[:, 0])))
+    autCor = [data.iloc[:, 0].autocorr(l) for l in lag]
+    sns.pointplot(x=lag, y=autCor, markers='.', ax=ax2)
+    ax2.set_title('Autocorrelation Fed Exp')
+    ax2.set_xlabel('Lag(year)')
+    ax2.set_ylabel('Autocorrelation')
+    ax2.set_xticklabels(lag, rotation=90)
+
+    #### Second Method #####
+    r = data.iloc[27, 0]
+    plot_acf(data.iloc[:, 0], lags=len(data.iloc[:, 0])-1, zero=False, ax=ax3)
+    ax3.set_title('Autocorrelation Fed Exp (plot_acf)')
+    ax3.set_xlabel('Lag(year)')
+    ax3.set_ylabel('Autocorrelation')
+
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
-    timedSeries()
+    dataPlot = timedSeries()
+    autocorrelation(dataPlot)
